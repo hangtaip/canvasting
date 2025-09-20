@@ -1,0 +1,10 @@
+dist/
+node_modules/
+.direnv
+.envrc
+
+src/ts/tutorials/
+src/pages/
+notes/
+
+*:Zone.Identifier

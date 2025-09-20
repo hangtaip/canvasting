@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Canvasting</title>
+   <link href="css/base.css" rel="stylesheet">
+   <script type="importMap">
+      {
+         "imports": {
+            "main": "./scripts/main.js",
+            "cssCosfig": "./scripts/cssConfig.js",
+            "rain": "./scripts/rain.js"
+         }
+      } 
+   </script>
+</head>
+
+<body>
+   <canvas id="canvas"></canvas>
+</body>
+
+<!-- <script type="module"> -->
+<!--    import {Main} from "main"; -->
+<!---->
+<!--    const test = new Main(); -->
+<!--    console.log(test.render()); -->
+<!-- </script> -->
+<script type="module">
+   import {RainScene} from "rain";
+
+   const canvas = document.getElementById("canvas");
+   const test = new RainScene(canvas);
+   test.resizeCanvas();
+   test.initScene();
+   test.drawScene();
+
+   window.addEventListener("resize", test.resizeCanvas.bind(test));
+</script>
+
+</html>

@@ -1,0 +1,33 @@
+{
+  "name": "canvasting",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Trying canvas thing",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm -rf ./dist",
+    "build": "pnpm clean && tsc && pnpm copy:css && pnpm minify:html",
+    "minify:html": "html-minifier-terser index.html -o ./dist/index.html --collapse-whitespace --remove-comments --remove-optional-tags --minify-css true --minify-js true",
+    "copy:css": "cpx \"src/css/*.css\" ./dist/css --ignore=main.css",
+    "watch:html": "cpx index.html ./dist --watch",
+    "watch:ts": "tsc --watch",
+    "watch:css": "cpx \"src/css/*.css\" ./dist/css --watch --ignore=main.css",
+    "dev:server": "node server.js",
+    "dev": "concurrently \"pnpm watch:html\" \"pnpm watch:ts\" \"pnpm watch:css\" \"pnpm dev:server\"",
+    "predeploy": "pnpm build",
+    "deploy": "gh-pages -d dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "cpx2": "^8.0.0",
+    "express": "^5.1.0",
+    "gh-pages": "^6.3.0",
+    "html-minifier-terser": "^7.2.0",
+    "reflect-metadata": "^0.2.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}

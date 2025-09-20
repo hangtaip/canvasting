@@ -1,0 +1,16 @@
+* {
+  box-sizing: content-box;
+  padding: 0px;
+  margin: 0px;
+}
+
+body {
+  overflow: hidden;
+  min-width: 100vw;
+  min-height: 100vh;
+}
+
+#canvas {
+  display: block;
+  width: 100%;
+}
