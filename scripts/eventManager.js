@@ -68,7 +68,6 @@ class EventManager {
                 composed: true,
                 detail: data.details,
             };
-            console.log(this);
             this.publish(data.eventName, eventDetail);
         }
         catch (err) {

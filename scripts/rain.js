@@ -27,7 +27,6 @@ export class RainScene {
         this.unsubscribe = eventManager.subscribe("alterDensity", this.listener);
     }
     initScene() {
-        console.log("rain falling down");
         this.newCanvasSize = { width: this.canvas.width, height: this.canvas.height };
         for (let i = this.density; i < this.canvas.width; i += this.density) {
             for (let j = this.density; j < this.canvas.height / 10; j += this.density) {
@@ -161,7 +160,6 @@ export class RainScene {
                             this.nodes.push(nodes);
                         }
                     }
-                    console.log(this.nodes);
                 }
                 else if (newDensity > this.density) {
                     let diff = 0;
@@ -176,15 +174,11 @@ export class RainScene {
                         if (this.nodes[random])
                             this.nodes.splice(random, 1);
                     }
-                    console.log(this.nodes);
-                    console.log("remove node");
                 }
                 this.nodes = this.shuffleArray(this.nodes);
                 this.firstNodes = this.nodes.slice(0, (this.nodes.length - 1) / 3);
                 this.otherNodes = this.nodes.slice((this.nodes.length - 1) / 3);
                 this.density = newDensity;
-                // target.drawScene();
-                console.log("altering density");
             });
         }
         else {

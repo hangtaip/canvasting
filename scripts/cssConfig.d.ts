@@ -23,12 +23,6 @@ export declare class CssConfig {
     createOptions<Props extends Record<string, CssValue>, Events extends EventValue>(options: Option<Props, Events>[]): void;
     addStyleSheetRules<Props extends [Record<string, CssValue>]>(rules: Props): void;
     setupEventListener<Events extends EventValue[]>(elem: HTMLElement, events: Events): void;
-    publishCustomEvent(data: {
-        await: string;
-        awaitDetail: CallableFunction;
-        eventName: string;
-        details: object;
-    }): Promise<void>;
 }
 export {};
 //# sourceMappingURL=cssConfig.d.ts.map

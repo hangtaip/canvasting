@@ -103,31 +103,9 @@ export class CssConfig {
                     const eventType = `${event.eventName.slice(0, 1).toUpperCase()}${event.eventName.slice(1)}`;
                     const key = `handle${eventType}`;
                     this[key] = event.callback.call(this, elem);
-                    // this.listener.setDelegates(elem);
-                    // elem.addEventListener(event.eventListener, (e) => {
-                    //    this.listener.handleEvent(e, event);
-                    // });
                 }
             }
         });
-        console.log(subscribe);
-        // this.unsubscribe = eventManager.subscribe(subscribe, this.listener);
-    }
-    async publishCustomEvent(data) {
-        try {
-            if (data.await) {
-                await data.awaitDetail();
-            }
-            const eventDetail = {
-                bubbles: true,
-                composed: true,
-                detail: data.details,
-            };
-            eventManager.publish(data.eventName, eventDetail);
-        }
-        catch (err) {
-            console.error(`Failed to publish ${data.eventName} : ${err}`);
-        }
     }
 }
 //# sourceMappingURL=cssConfig.js.map
