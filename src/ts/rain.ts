@@ -1,3 +1,7 @@
+import eventManager from "./eventManager.js";
+import DelegatedListener from "./listener.js";
+import type { DelegatedHandlers, Listener } from "./listener.js";
+
 interface Rain {
    initScene(): void;
    drawScene(): void;
@@ -5,6 +9,8 @@ interface Rain {
    calcDistance(node1: { x: number, y: number }, node2: Droplets): number | undefined;
    shuffleArray(arr: any[]): any[];
 }
+
+type RainSceneType = Rain & Partial<DelegatedHandlers<RainScene>>;
 
 interface Raindrop {
    drawNode(): void;
@@ -18,9 +24,12 @@ export class RainScene implements Rain {
    anchor_length: number;
    newCanvasSize: { width: number, height: number };
    stabilizeCanvas: { width: number, height: number };
+   cancelWait?: () => void;
    nodes: Droplets[];
    firstNodes: Droplets[];
    otherNodes: Droplets[];
+   listener: Listener<this>;
+   unsubscribe: () => void;
 
    constructor(canvas: HTMLCanvasElement, density: number = 20, anchor_length: number = 20) {
       this.canvas = canvas;
@@ -31,6 +40,11 @@ export class RainScene implements Rain {
       this.nodes = [];
       this.firstNodes = [];
       this.otherNodes = [];
+
+      // events
+      this.listener = new DelegatedListener(this);
+      this.listener.setDelegates(this);
+      this.unsubscribe = eventManager.subscribe("alterDensity", this.listener);
    }
 
    initScene() {
@@ -97,28 +111,54 @@ export class RainScene implements Rain {
       this.newCanvasSize.height = this.canvas.height;
    }
 
-   waitChange(canvas: HTMLCanvasElement, callback: (currWidth: number) => void) {
-      let prevWidth = canvas.width;
+   waitChange<T>(
+      getValue: () => T,
+      callback: (currValue: T) => void,
+      stableFramesTarget: number = 60
+   ): () => void {
+      // TODO: make this more general, not just for width
+      // canvas: HTMLCanvasElement
+      let prevValue = getValue();
       let stableFrames = 0;
+      let rafId: number | null = null;
+      let stopped = false;
 
-      function checkWidth() {
-         requestAnimationFrame(function(this: RainScene) {
-            const currWidth = canvas.width;
+      function loop() {
+         if (stopped) return;
 
-            if (currWidth !== prevWidth) {
+         const currValue = getValue();
+
+         rafId = requestAnimationFrame(function(this: RainScene) {
+            if (stopped) return;
+
+            if (currValue !== prevValue) {
                stableFrames = 0;
-               prevWidth = currWidth;
-            } else stableFrames++;
-
-            if (stableFrames >= 60) {
-               callback(currWidth);
+               prevValue = currValue;
             } else {
-               checkWidth();
+               stableFrames++;
             }
+
+
+            if (stableFrames >= stableFramesTarget) {
+               stopped = true;
+               rafId = null;
+               callback(currValue);
+               return;
+            }
+
+            loop();
          });
       };
 
-      checkWidth();
+      loop();
+
+      return () => {
+         stopped = true;
+         if (rafId !== null) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+         }
+      };
    }
 
 
@@ -127,9 +167,13 @@ export class RainScene implements Rain {
       this.canvas.height = window.innerHeight;
 
       if (this.nodes.length > 0) {
-         this.waitChange(this.canvas, () => {
-            this.updateScene();
-         });
+
+         this.cancelWait?.();
+
+         this.cancelWait = this.waitChange(
+            () => this.canvas.width,
+            (currWidth) => this.updateScene()
+         );
          // this.drawScene();
       }
    }
@@ -149,6 +193,72 @@ export class RainScene implements Rain {
       }
 
       return arr;
+   }
+
+   // TODO: target is hackish, use 'this' instead;
+   handleAlterDensity?(event: CustomEvent, delegated: object): void {
+      const isDOM = delegated instanceof DelegatedListener;
+
+      if (isDOM) {
+         let elem = this.canvas;
+
+         if (!elem) return;
+         if (!document.contains(elem)) return;
+
+         this.cancelWait?.();
+         this.cancelWait = this.waitChange(
+            () => event.detail.value,
+            () => {
+
+               const input = event.detail.target;
+               let newDensity = Number(input.max) - Number(input.value);
+               newDensity = Math.max(newDensity, 20);
+
+               if (newDensity < this.density) {
+
+                  for (let i = newDensity; i < this.canvas.width; i += newDensity) {
+                     for (let j = newDensity; j < this.canvas.height; j += newDensity) {
+                        const nodes = new Droplets(i, j, this.anchor_length);
+                        nodes.storeScene(this.canvas);
+                        this.nodes.push(nodes);
+                     }
+                  }
+
+                  console.log(this.nodes);
+               } else if (newDensity > this.density) {
+                  let diff = 0;
+                  for (let i = newDensity; i < this.canvas.width; i += newDensity) {
+                     for (let j = newDensity; j < this.canvas.height; j += newDensity) {
+                        diff++;
+                     }
+                  }
+
+                  const toRemove = this.nodes.length - diff;
+
+                  for (let i = 0; i < toRemove; i++) {
+                     const random = Math.floor(Math.random() * this.nodes.length);
+                     if (this.nodes[random]) this.nodes.splice(random, 1);
+                  }
+
+                  console.log(this.nodes);
+                  console.log("remove node");
+               }
+
+               this.nodes = this.shuffleArray(this.nodes);
+
+               this.firstNodes = this.nodes.slice(0, (this.nodes.length - 1) / 3);
+               this.otherNodes = this.nodes.slice((this.nodes.length - 1) / 3);
+
+               this.density = newDensity;
+
+               // target.drawScene();
+
+               console.log("altering density");
+            });
+
+      } else {
+         console.log("external");
+      }
    }
 }
 
