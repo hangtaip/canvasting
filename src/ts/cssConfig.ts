@@ -146,37 +146,11 @@ export class CssConfig {
                const eventType = `${event.eventName.slice(0, 1).toUpperCase()}${event.eventName.slice(1)}`;
                const key = `handle${eventType}` as keyof DelegatedHandlers<Events>;
                (this as any)[key] = event.callback.call(this, elem);
-
-               // this.listener.setDelegates(elem);
-               // elem.addEventListener(event.eventListener, (e) => {
-               //    this.listener.handleEvent(e, event);
-               // });
             }
 
 
          }
       });
-
-      console.log(subscribe);
-      // this.unsubscribe = eventManager.subscribe(subscribe, this.listener);
-   }
-
-   async publishCustomEvent(data: { await: string, awaitDetail: CallableFunction, eventName: string, details: object }) {
-      try {
-         if (data.await) {
-            await data.awaitDetail();
-         }
-
-         const eventDetail = {
-            bubbles: true,
-            composed: true,
-            detail: data.details,
-         };
-
-         eventManager.publish(data.eventName, eventDetail);
-      } catch (err) {
-         console.error(`Failed to publish ${data.eventName} : ${err}`);
-      }
    }
 }
 

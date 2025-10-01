@@ -89,7 +89,6 @@ class EventManager implements EventManager {
         detail: data.details,
       };
 
-      console.log(this);
       this.publish(data.eventName, eventDetail);
     } catch (err) {
       console.error(`Failed to publish ${data.eventName} : ${err}`);
