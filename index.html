@@ -1,7 +1,8 @@
 <!DOCTYPE html><html lang="en"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Canvasting</title><link href="css/base.css" rel="stylesheet"><script type="importMap">{
          "imports": {
             "main": "./scripts/main.js",
-            "cssCosfig": "./scripts/cssConfig.js",
-            "rain": "./scripts/rain.js"
+            "cssConfig": "./scripts/cssConfig.js",
+            "rain": "./scripts/rain.js",
+            "eventManager": "./scripts/eventManager.js"
          }
-      }</script><canvas id="canvas"></canvas><script type="module">import{RainScene}from"rain";const canvas=document.getElementById("canvas"),test=new RainScene(canvas);test.resizeCanvas(),test.initScene(),test.drawScene(),window.addEventListener("resize",test.resizeCanvas.bind(test))</script>
+      }</script><canvas id="canvas"></canvas><script type="module">import{RainScene}from"rain";import{CssConfig}from"cssConfig";import eventManager from"eventManager";const canvas=document.getElementById("canvas"),test=new RainScene(canvas);test.resizeCanvas(),test.initScene(),test.drawScene();const body=document.body,toAppendTo={selector:".cssConfig",position:{value:"absolute"},top:{value:10,unit:"px"},right:{value:10,unit:"px"}},optionsToCreate=[{tagName:"input",name:"alter-density",attributes:{title:"alter-density",class:"range inputable",type:"range",min:0,max:100,value:test.density},properties:[{selector:".range",height:{value:50,unit:"px"},width:{value:100,unit:"px"}}]},{tagName:"input",name:"alter-speed",attributes:{title:"alter-speed",class:"range inputable",type:"range",min:0,max:100},properties:[{selector:".range",height:{value:50,unit:"px"},width:{value:100,unit:"px"}}]}];optionsToCreate[0].events=[{eventName:optionsToCreate[0].name.split("-").map((e,t)=>1==t?e.substring(0,1).toUpperCase()+e.substring(1):e).join(""),eventListener:"input",eventDelegates:RainScene,callback:function(e){e.addEventListener("input",function(e){e.target.setAttribute("value",e.target.value);let t={await:!1,awaitDetail:()=>{},details:{target:e.target},eventName:"alterDensity"};eventManager.publishCustomEvent(t)})}}];const cssConfig=new CssConfig;cssConfig.createOptions(optionsToCreate),cssConfig.init(body,toAppendTo),window.addEventListener("resize",test.resizeCanvas.bind(test))</script>

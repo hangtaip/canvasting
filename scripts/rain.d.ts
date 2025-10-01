@@ -1,3 +1,4 @@
+import type { Listener } from "./listener.js";
 interface Rain {
     initScene(): void;
     drawScene(): void;
@@ -25,20 +26,24 @@ export declare class RainScene implements Rain {
         width: number;
         height: number;
     };
+    cancelWait?: () => void;
     nodes: Droplets[];
     firstNodes: Droplets[];
     otherNodes: Droplets[];
+    listener: Listener<this>;
+    unsubscribe: () => void;
     constructor(canvas: HTMLCanvasElement, density?: number, anchor_length?: number);
     initScene(): void;
     drawScene(): void;
     updateScene(): void;
-    waitChange(canvas: HTMLCanvasElement, callback: (currWidth: number) => void): void;
+    waitChange<T>(getValue: () => T, callback: (currValue: T) => void, stableFramesTarget?: number): () => void;
     resizeCanvas(): void;
     calcDistance(node1: {
         x: number;
         y: number;
     }, node2: Droplets | undefined): number | undefined;
     shuffleArray(arr: any[]): any[];
+    handleAlterDensity?(event: CustomEvent, delegated: object): void;
 }
 declare class Droplets implements Raindrop {
     canvas: HTMLCanvasElement | null;
